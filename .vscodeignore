@@ -1,0 +1,8 @@
+build.mjs
+palette.json
+journal/**
+CLAUDE.md
+.gitignore
+*.vsix
+icons/seti/**
+icons/preview.html

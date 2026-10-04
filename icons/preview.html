@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Icon colours</title>
+<style>
+  /* Seti's icon font, the same file Kyoto Icons uses. Open this page from disk. */
+  @font-face { font-family: seti; src: url("seti.woff") format("woff"); }
+  :root { --bg: #1a1a1a; --tab: #ff9f43; --fg: #c4c5b5; --comment: #625e4c; }
+  body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font: 15px/1.4 system-ui, sans-serif; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  p { margin: 0 0 16px; color: #8a856e; max-width: 70ch; }
+  .row { display: grid; grid-template-columns: 210px 1fr 1fr; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid #343434; }
+  .name b { display: block; }
+  .name code { color: #8a856e; }
+  .tab, .explorer { display: flex; gap: 14px; align-items: center; padding: 8px 12px; border-radius: 4px; overflow: hidden; white-space: nowrap; }
+  .tab { background: var(--tab); color: var(--bg); }
+  .switch { margin: 0 0 12px; display: flex; gap: 8px; }
+  .switch button { font: inherit; padding: 4px 12px; border: 1px solid #625e4c; border-radius: 4px; background: #343434; color: var(--fg); cursor: pointer; }
+  .switch button[aria-pressed="true"] { background: var(--tab); color: var(--bg); }
+  .explorer { background: var(--bg); color: var(--fg); outline: 1px solid #343434; }
+  .i { font-family: seti; font-size: 26px; line-height: 1; }
+  .label { font-size: 13px; }
+  @media (max-width: 700px) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<h1>Icon colours on the active tab and the dark explorer</h1>
+<p>Each row is one colouring of the icons, as Kyoto Icons would draw it. Left: the active tab.
+Right: the explorer. The numbers are the contrast on the tab and on the dark background. The most
+a single colour can reach on both is about 2.9:1 with an amber tab and 4:1 with an off-white
+one.</p>
+<div class="switch">
+  <button data-tab="#ff9f43" aria-pressed="true">Amber tab</button>
+  <button data-tab="#f6f6ef" aria-pressed="false">Off-white tab</button>
+</div>
+<div id="rows"></div>
+<script>
+  const glyphs = [
+    ['', 'workspace.py'], ['', 'app.js'], ['', 'package.json'],
+    ['', 'README.md'], ['', 'build.yaml'], ['', '.zshrc'], ['', 'notes'],
+  ];
+  // Mixed rows give each icon its own colour, the way Seti's colour families would map.
+  const palette = { blue: '#4c8ce6', rose: '#9f7887', violet: '#9e7cc0', olive: '#625e4c', sage: '#8f9f78' };
+  const mixed = [palette.blue, palette.olive, palette.olive, palette.blue, palette.violet, palette.sage, palette.olive];
+  const candidates = [
+    ['Off-white (fg_bright)', '#f6f6ef', 'palette'],
+    ['Text grey (fg)', '#c4c5b5', 'palette'],
+    ['Palette mix: blue, violet, rose, sage, olive', mixed, 'palette'],
+    ['Plum', '#965587', 'from the search'],
+    ['Mauve grey', '#785f73', 'from the search'],
+    ['Dark teal', '#376964', 'from the search'],
+    ['Rose red', '#aa4b5f', 'from the search'],
+    ['Magenta', '#aa46a0', 'from the search'],
+    ['Olive grey (comment)', palette.olive, 'palette'],
+    ['Dusty rose', palette.rose, 'palette'],
+    ['Blue', palette.blue, 'palette'],
+    ['Violet', palette.violet, 'palette'],
+    ['Background', '#1a1a1a', 'the current build'],
+  ];
+
+  // WCAG 2 contrast ratio, as in colour-math.js.
+  const lum = (hex) => [1, 3, 5]
+    .map((k) => parseInt(hex.slice(k, k + 2), 16) / 255)
+    .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4))
+    .reduce((sum, v, k) => sum + v * [0.2126, 0.7152, 0.0722][k], 0);
+  const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); };
+
+  function render(tab) {
+    document.documentElement.style.setProperty('--tab', tab);
+    const rows = document.getElementById('rows');
+    rows.innerHTML = '';
+    for (const [name, colour, from] of candidates) {
+      const colours = Array.isArray(colour) ? colour : glyphs.map(() => colour);
+      const icons = glyphs.map(([g, file], k) =>
+        `<span><span class="i" style="color:${colours[k]}">${g}</span> <span class="label">${file}</span></span>`).join('');
+      const worst = (bg) => Math.min(...colours.map((c) => contrast(c, bg))).toFixed(1);
+      rows.insertAdjacentHTML('beforeend', `
+        <div class="row">
+          <div class="name"><b>${name}</b><code>${Array.isArray(colour) ? 'several' : colour}</code> · ${worst(tab)} / ${worst('#1a1a1a')} · ${from}</div>
+          <div class="tab">${icons}</div>
+          <div class="explorer">${icons}</div>
+        </div>`);
+    }
+  }
+  for (const button of document.querySelectorAll('.switch button')) {
+    button.addEventListener('click', () => {
+      for (const other of document.querySelectorAll('.switch button')) other.setAttribute('aria-pressed', other === button);
+      render(button.dataset.tab);
+    });
+  }
+  render('#ff9f43');
+</script>
+</body>
+</html>

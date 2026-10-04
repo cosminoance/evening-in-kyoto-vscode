@@ -1,0 +1,57 @@
+{
+  "name": "evening-in-kyoto",
+  "displayName": "Evening in Kyoto",
+  "description": "A dark and a light colour theme calibrated for protanomaly, with matching file icons, from the Neovim theme evening-in-kyoto-nvim.",
+  "version": "0.1.0",
+  "publisher": "cosminoance",
+  "license": "MIT",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cosminoance/evening-in-kyoto-vscode"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "theme",
+    "dark",
+    "light",
+    "colorblind",
+    "protanomaly",
+    "color vision deficiency",
+    "monokai",
+    "monokai-soda"
+  ],
+  "galleryBanner": {
+    "color": "#1a1a1a",
+    "theme": "dark"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "label": "Evening in Kyoto",
+        "uiTheme": "vs-dark",
+        "path": "./themes/evening-in-kyoto-color-theme.json"
+      },
+      {
+        "label": "Morning in Kyoto",
+        "uiTheme": "vs",
+        "path": "./themes/morning-in-kyoto-color-theme.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "kyoto-icons",
+        "label": "Kyoto Icons",
+        "path": "./icons/kyoto-icon-theme.json"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  }
+}
